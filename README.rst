@@ -1,31 +1,6 @@
-.. These are examples of badges you might want to add to your README:
-   please update the URLs accordingly
-
-    .. image:: https://api.cirrus-ci.com/github/<USER>/jwst_ifu_analysis.svg?branch=main
-        :alt: Built Status
-        :target: https://cirrus-ci.com/github/<USER>/jwst_ifu_analysis
-    .. image:: https://readthedocs.org/projects/jwst_ifu_analysis/badge/?version=latest
-        :alt: ReadTheDocs
-        :target: https://jwst_ifu_analysis.readthedocs.io/en/stable/
-    .. image:: https://img.shields.io/coveralls/github/<USER>/jwst_ifu_analysis/main.svg
-        :alt: Coveralls
-        :target: https://coveralls.io/r/<USER>/jwst_ifu_analysis
-    .. image:: https://img.shields.io/pypi/v/jwst_ifu_analysis.svg
-        :alt: PyPI-Server
-        :target: https://pypi.org/project/jwst_ifu_analysis/
-    .. image:: https://img.shields.io/conda/vn/conda-forge/jwst_ifu_analysis.svg
-        :alt: Conda-Forge
-        :target: https://anaconda.org/conda-forge/jwst_ifu_analysis
-    .. image:: https://pepy.tech/badge/jwst_ifu_analysis/month
-        :alt: Monthly Downloads
-        :target: https://pepy.tech/project/jwst_ifu_analysis
-    .. image:: https://img.shields.io/twitter/url/http/shields.io.svg?style=social&label=Twitter
-        :alt: Twitter
-        :target: https://twitter.com/jwst_ifu_analysis
-
-.. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
-    :alt: Project generated with PyScaffold
-    :target: https://pyscaffold.org/
+.. image:: https://img.shields.io/pypi/v/jwst_ifu_analysis.svg
+    :alt: PyPI-Server
+    :target: https://pypi.org/project/jwst_ifu_analysis/
 
 |
 
@@ -33,12 +8,43 @@
 jwst_ifu_analysis
 =================
 
+Tools for extracting, fitting, and visualizing JWST IFU (NIRSpec and MIRI MRS)
+spectral data cubes.
 
-    Add a short description here!
+``jwst_ifu_analysis`` provides a small class hierarchy built on top of
+``astropy`` and ``photutils`` for common IFU analysis tasks:
 
+- **Cube** — load a spectral data cube from a pipeline FITS file (or a raw
+  array + header), extract a 1D spectrum through an aperture/region, slice
+  out a spectral window, continuum-fit every spaxel, and mosaic two
+  overlapping cubes together.
+- **LineCube** — a ``Cube`` scoped to a single spectral line, with an
+  associated velocity axis and moment-0/moment-1 map generation (either a
+  manual calculation or via the `bettermoments
+  <https://github.com/richteague/bettermoments>`_ package).
+- **Spectrum** — a 1D wavelength/flux pair supporting continuum fitting,
+  Gaussian line fitting, and line flux measurement (by Gaussian area or by
+  numerical integration).
 
-A longer description of your project goes here...
+Installation
+=============
 
+.. code-block:: bash
+
+    pip install jwst_ifu_analysis
+
+Usage
+=====
+
+.. code-block:: python
+
+    from jwst_ifu_analysis import Cube
+
+    cube = Cube("stage3_s3d.fits")
+    spectrum = cube.extract_spectrum("aperture.reg")
+
+    line = {"rest_wvl": 12.81, "line_width": 0.02}
+    line_flux, line_flux_err = spectrum.line_flux(line, method="fit")
 
 .. _pyscaffold-notes:
 

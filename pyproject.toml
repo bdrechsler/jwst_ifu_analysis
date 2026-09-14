@@ -1,9 +1,66 @@
 [build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
-requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "jwst_ifu_analysis"
+dynamic = ["version"]
+description = "Tools for extracting, fitting, and visualizing JWST IFU spectral data cubes"
+readme = "README.rst"
+license = { file = "LICENSE.txt" }
+authors = [
+    { name = "bdrechsler", email = "wbd814@gmail.com" },
+]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "astropy",
+    "photutils",
+    "regions",
+    "lmfit",
+    "bettermoments",
+    "emcee",
+    "matplotlib",
+]
+
+[project.urls]
+Homepage = "https://github.com/bdrechsler/jwst_ifu_analysis"
+Source = "https://github.com/bdrechsler/jwst_ifu_analysis"
+Issues = "https://github.com/bdrechsler/jwst_ifu_analysis/issues"
+
+[project.optional-dependencies]
+testing = [
+    "setuptools",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+license-files = ["LICENSE.txt"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
 
 [tool.setuptools_scm]
 # For smarter version schemes and other configuration options,
 # check out https://github.com/pypa/setuptools_scm
 version_scheme = "no-guess-dev"
+
+[tool.pytest.ini_options]
+addopts = "--cov jwst_ifu_analysis --cov-report term-missing --verbose"
+norecursedirs = ["dist", "build", ".tox"]
+testpaths = ["tests"]

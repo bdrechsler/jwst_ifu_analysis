@@ -1,8 +1,8 @@
 import numpy as np
+import photutils.aperture as ap
+from astropy.constants import c
 from astropy.io import fits
 from astropy.wcs import WCS
-from astropy.constants import c
-import photutils.aperture as ap
 from regions import Regions
 
 from .Spectrum import Spectrum
@@ -11,6 +11,7 @@ from .utils import *
 
 class Cube:
     """A class representing a spectral data cube with methods for extraction, manipulation, and I/O."""
+
     def __init__(self, data, header=None):
         """Initialize a Cube object.
 
