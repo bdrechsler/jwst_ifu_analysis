@@ -43,7 +43,7 @@ class Cube:
         """Extract a 1D spectrum from an IFU cube
 
         Args:
-            region (str or region.Regions): Region file defining the aperture used to extract the spectrum
+            region (str, region.Regions, or photutils Aperture): Region defining the aperture used to extract the spectrum
 
         Returns:
             (Spectrum): Extracted 1D spectrum
@@ -51,15 +51,24 @@ class Cube:
 
         nchan = self.shape[0]
 
-        # load in the region and convert to an aperture
-        if isinstance(region, str):
-            reg = Regions.read(region)[0]
-        else:
-            reg = region
-        sky_ap = ap.region_to_aperture(reg)
+        # Check if region is a photutils aperture
+        if isinstance(region, (ap.PixelAperture, ap.SkyAperture)):
+            if isinstance(region, ap.PixelAperture):
+                pix_ap = region
+            elif isinstance(region, ap.SkyAperture):
+                pix_ap = region.to_pixel(self.wcs.celestial)
 
-        # convert sky aperture to a pixel aperture
-        pix_ap = sky_ap.to_pixel(self.wcs.celestial)
+        # then check if it is a region file or region object
+        else:
+            if isinstance(region, str):
+                reg = Regions.read(region)[0]
+            else:
+                reg = region
+        
+            sky_ap = ap.region_to_aperture(reg)
+            # convert sky aperture to a pixel aperture
+            pix_ap = sky_ap.to_pixel(self.wcs.celestial)
+
 
         # convert aperture to a mask
         mask = pix_ap.to_mask(method="exact")
