@@ -95,8 +95,8 @@ class Cube:
         """Get a spectral region (slab) of the spectral cube
 
         Args:
-            center_wvl (float): central wavelength of the region [um]
-            region_width (float): width of the spectral region [um]
+            center_wvl (float): central wavelength of the region in um
+            region_width (float): width of the spectral region in um
 
         Returns:
             spectral_region (Cube): region of spectral cube within spectral
