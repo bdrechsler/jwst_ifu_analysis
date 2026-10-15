@@ -86,6 +86,17 @@ class Spectrum:
 
         return Spectrum(wvl_axis=region_wvl, flux=region_flux)
 
+    def line_region(self, line, width):
+        """Extract a spectral region around a given line
+        Args:
+            line (Line): Line to center spectral window on
+            width (float): width of spectral region in units of line width
+        Returns:
+            region_spectrum (Spectrum): line spectral region"""
+
+        region_width = width * line.line_width
+        self.spectral_region(central_wvl=line.rest_wvl, width=region_width)
+
     def fit_gaussian(self, line):
         """Fit a Gaussian to a spectral line
         Args:
