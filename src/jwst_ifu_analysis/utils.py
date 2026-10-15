@@ -19,45 +19,6 @@ def get_wvl_axis(header):
     return wvl_axis
 
 
-def get_line_mask(line_list, wvl_axis, central_line=None):
-    """Get a mask for the wavelength axis that filters out spectral lines
-
-    Args:
-        line_list (list): List of spectral lines
-        wvl_axis (numpy.ndarray): Wavelength axis of the IFU cube
-        central_line (dict, optional): Central line to exclude from masking. Defaults to None.
-    Returns:
-        numpy.ndarray: Boolean mask for the wavelength axis"""
-
-    wvl_min = np.min(wvl_axis)
-    wvl_max = np.max(wvl_axis)
-    # get list of lines within wvl range
-    nearby_lines = [
-        l for l in line_list if (l["rest_wvl"] > wvl_min) & (l["rest_wvl"] < wvl_max)
-    ]
-
-    if central_line:
-        # find the line closest to the middle of the cube
-        # remove the line from the list of nearby lines
-        nearby_lines = [
-            l for l in nearby_lines if l["rest_wvl"] != central_line["rest_wvl"]
-        ]
-
-    # create a mask for the lines in the spectrum
-    if len(nearby_lines) > 0:
-        line_mask = np.zeros(len(wvl_axis), dtype=bool)
-        for l in nearby_lines:
-            lo = l["rest_wvl"] - (0.5 * l["line_width"])
-            hi = l["rest_wvl"] + (0.5 * l["line_width"])
-            mask = (wvl_axis > lo) & (wvl_axis < hi)
-            line_mask = line_mask | mask
-        # invert the line mask since we want to include the continuum
-        return ~line_mask
-    else:
-        # if there are no nearby lines, don't filter anything
-        return np.ones(len(wvl_axis), dtype=bool)
-
-
 def get_chan(wvl):
     """Get the channel name for a given wavelength
 

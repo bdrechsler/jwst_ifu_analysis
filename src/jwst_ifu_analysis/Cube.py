@@ -118,7 +118,7 @@ class Cube:
         """Continuum fit the spectral cube
 
         Args:
-            line_list (list of dict): list of lines used to mask out lines when fitting the continuum
+            line_list (LineList): line list used to mask out lines when fitting the continuum
 
         Returns:
             cont_cube (Cube): Fitted continuum Cube

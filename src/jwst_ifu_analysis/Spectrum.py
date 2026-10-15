@@ -8,8 +8,6 @@ from astropy.table import Table
 from scipy.ndimage import median_filter
 import emcee
 
-from .utils import get_line_mask
-
 
 class Spectrum:
     """Class to handle 1D spectra
@@ -45,7 +43,7 @@ class Spectrum:
         """Fit the continuum of the spectrum, ignore line emission
 
         Args:
-            line_list (list): list of lines, will mask out any in the wavelength range
+            line_list (LineList): LineList, will mask out any in the wavelength range
             med_kernel (odd int): Size of kernel used in
             median smoothing. Defaults to 3.
             fit_order (int): Order of polynomial to fit to the continuum. Defaults to 3.
@@ -55,7 +53,7 @@ class Spectrum:
         """
 
         # create a mask for all nearby lines
-        cont_mask = get_line_mask(line_list=line_list, wvl_axis=self.wvl_axis)
+        cont_mask = line_list.mask(self.wvl_axis)
 
         # mask the wavelength and flux
         wvl_axis_masked = self.wvl_axis[cont_mask]
@@ -90,10 +88,8 @@ class Spectrum:
 
     def fit_gaussian(self, line):
         """Fit a Gaussian to a spectral line
-
         Args:
-            line (dict): dictionary with line information, must contain
-                         "rest_wvl" and "line_width" keys
+            line (Line): line object to fit 
         Returns:
             fit_result (dict): dictionary with fit results and uncertainties
         """
@@ -104,8 +100,8 @@ class Spectrum:
 
         # initial guess of parameters
         amp = np.max(flux)
-        mean = line["rest_wvl"]
-        stddev = line["line_width"] / 3.
+        mean = line.rest_wvl
+        stddev = line.line_width / 3.
         g_init = models.Gaussian1D(amplitude=amp, mean=mean, stddev=stddev)
         # fit the gaussian to the data
         fitter = fitting.TRFLSQFitter(calc_uncertainties=True)
@@ -127,8 +123,7 @@ class Spectrum:
         """Calculate the line flux of a spectral line
 
         Args:
-            line (dict): dictionary with line information, must contain
-                         "rest_wvl" and "line_width" keys
+            line (Line): Line object to measure the flux of
             method (str): method to calculate line flux, either "fit" or "integral"
             return_fit (bool): whether to return the fit result when using "fit" method
         Returns:
@@ -144,8 +139,8 @@ class Spectrum:
             sigma_wvl, sigma_wvl_err = fit_result['std']
 
             # switch sigma to nu binning
-            sigma_nu = (sigma_wvl * u.um * c / (line["rest_wvl"] * u.um) ** 2).to(u.Hz)
-            sigma_nu_err = (sigma_wvl_err * u.um * c / (line["rest_wvl"] * u.um) ** 2).to(u.Hz)
+            sigma_nu = (sigma_wvl * u.um * c / (line.rest_wvl * u.um) ** 2).to(u.Hz)
+            sigma_nu_err = (sigma_wvl_err * u.um * c / (line.rest_wvl * u.um) ** 2).to(u.Hz)
 
             # calculate flux as area under gaussian
             line_flux_fit = amp * u.Jy * sigma_nu * np.sqrt(2 * np.pi)
@@ -160,11 +155,11 @@ class Spectrum:
         elif method == "integral":
             # calculate line flux as numerical integral
             line_region = self.spectral_region(
-                center_wvl=line["rest_wvl"], region_width=line["line_width"]
+                center_wvl=line.rest_wvl, region_width=line.line_width
             )
             # get dlam and convert to dnu
             dlam = line_region.wvl_axis[1] - line_region.wvl_axis[0]
-            dnu = (dlam * u.um * c / (line["rest_wvl"] * u.um) ** 2).to(u.Hz)
+            dnu = (dlam * u.um * c / (line.rest_wvl * u.um) ** 2).to(u.Hz)
             # estimate the integral
             line_flux_integral = np.nansum(line_region.flux) * u.Jy * dnu
             line_flux_integral = line_flux_integral.to(u.erg / u.s / u.cm**2).value
@@ -175,30 +170,28 @@ class Spectrum:
         """Get velocity axis given a spectral line
 
         Args:
-            line (dict): dictionary with line information, must contain
-                         "rest_wvl" key
+            line: Line used to fined rest velocity
         Returns:
             vel_axis (np.array): velocity axis in km/s
         """
 
         # get velocity axis
-        dlam = (self.wvl_axis - line["rest_wvl"]) * u.um
-        rest_wvl = line["rest_wvl"] * u.um
+        dlam = (self.wvl_axis - line.rest_wvl) * u.um
+        rest_wvl = line.rest_wvl * u.um
         return (c * (dlam / rest_wvl)).to(u.km / u.s).value
 
     def estimate_sigma(self, line):
         """Estimate the noise in the spectrum using line-free regions
 
         Args:
-            line (dict): dictionary with line information, must contain
-                         "rest_wvl" and "line_width" keys
+            line (Line): line to estimate the noise around 
         Returns:
             sigma (float): estimated noise in the spectrum
         """
 
         # get line free region of spectrum
-        l_left = line['rest_wvl'] - line['line_width']
-        l_right = line['rest_wvl'] + line['line_width']
+        l_left = line.rest_wvl - line.line_width
+        l_right = line.rest_wvl + line.line_width
 
         line_free = self.flux[(self.wvl_axis < l_left) |
                               (self.wvl_axis > l_right)]

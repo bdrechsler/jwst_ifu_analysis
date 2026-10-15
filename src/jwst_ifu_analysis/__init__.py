@@ -12,5 +12,8 @@ finally:
 from .Cube import Cube, combine_cubes
 from .LineCube import LineCube
 from .Spectrum import Spectrum
+from .Line import Line
+from .LineList import LineList
 
-__all__ = ["Cube", "combine_cubes", "LineCube", "Spectrum"]
+__all__ = ["Cube", "combine_cubes", "LineCube", "Spectrum",
+           "Line", "LineList"]

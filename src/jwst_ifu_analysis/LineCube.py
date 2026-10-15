@@ -1,3 +1,4 @@
+import numpy as np
 from astropy.constants import c
 import astropy.units as u
 from astropy.io import fits
@@ -13,8 +14,8 @@ class LineCube(Cube):
 
         Args:
             data (numpy.ndarray or str): 3D array of spectral cube data or path to FITS file
-            line (dict): dictionary with line information (e.g., rest wavelength)
-            line_list (list): list of lines to consider for masking
+            line (Line): Line object for the line of interest
+            line_list (LineList): list of nearby lines for masking
             header (astropy.io.fits.Header, optional): FITS header. Defaults to None.
         """
 
@@ -24,9 +25,7 @@ class LineCube(Cube):
         self.line_list = line_list
 
         # get a mask for the lines in this cube
-        mask = get_line_mask(
-            line_list=line_list, wvl_axis=self.wvl_axis, central_line=self.line
-        )
+        mask = self.line_list.mask(self.wvl_axis, exclude=self.line) 
 
         # replace masked channels with nans
         for i in range(len(mask)):
@@ -35,8 +34,8 @@ class LineCube(Cube):
                 self.wvl_axis[i] = np.nan
 
         # get velocity axis
-        dlam = (self.wvl_axis - self.line["rest_wvl"]) * u.um
-        rest_wvl = self.line["rest_wvl"] * u.um
+        dlam = (self.wvl_axis - self.line.rest_wvl) * u.um
+        rest_wvl = self.line.rest_wvl * u.um
         self.vel_axis = (c * (dlam / rest_wvl)).to(u.km / u.s).value
 
     def spectral_region(self, center_wvl, region_width):
