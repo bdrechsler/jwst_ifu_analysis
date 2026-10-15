@@ -56,12 +56,14 @@ class LineCube(Cube):
         wvl_min = center_wvl - (region_width / 2.0)
         wvl_max = center_wvl + (region_width / 2.0)
 
-        region_data = self.data[(self.wvl_axis > wvl_min) & (self.wvl_axis < wvl_max)]
+        mask = (self.wvl_axis > wvl_min) & (self.wvl_axis < wvl_max)
+
+        region_data = self.data[mask]
 
         # update header with new wvl range
         header = self.header.copy()
-        header["CRVAL3"] = wvl_min
-        header["NAXIS3"] = np.shape(region_data)[0]
+        header["CRVAL3"] = self.wvl_axis[mask][0]
+        header["NAXIS3"] = region_data.shape[0]
 
         return LineCube(data=region_data, line=self.line, line_list=self.line_list, header=header)
 

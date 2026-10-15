@@ -31,7 +31,6 @@ dependencies = [
     "regions",
     "lmfit",
     "bettermoments",
-    "emcee",
     "matplotlib",
 ]
 

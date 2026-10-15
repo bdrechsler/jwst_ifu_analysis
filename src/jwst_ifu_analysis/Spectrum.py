@@ -6,8 +6,6 @@ from astropy.modeling import fitting, models
 from lmfit.models import GaussianModel
 from astropy.table import Table
 from scipy.ndimage import median_filter
-import emcee
-
 
 class Spectrum:
     """Class to handle 1D spectra
@@ -95,7 +93,7 @@ class Spectrum:
             region_spectrum (Spectrum): line spectral region"""
 
         region_width = width * line.line_width
-        self.spectral_region(central_wvl=line.rest_wvl, width=region_width)
+        return self.spectral_region(center_wvl=line.rest_wvl, region_width=region_width)
 
     def fit_gaussian(self, line):
         """Fit a Gaussian to a spectral line

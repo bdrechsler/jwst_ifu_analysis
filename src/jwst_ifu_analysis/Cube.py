@@ -6,7 +6,6 @@ from astropy.wcs import WCS
 from regions import Regions
 
 from .Spectrum import Spectrum
-from .LineCube import LineCube
 from .utils import *
 
 
@@ -105,13 +104,14 @@ class Cube:
         """
         wvl_min = center_wvl - (region_width / 2.0)
         wvl_max = center_wvl + (region_width / 2.0)
+        mask = (self.wvl_axis > wvl_min) & (self.wvl_axis < wvl_max)
 
-        region_data = self.data[(self.wvl_axis > wvl_min) & (self.wvl_axis < wvl_max)]
+        region_data = self.data[mask]
 
         # update header with new wvl range
         header = self.header.copy()
-        header["CRVAL3"] = wvl_min
-        header["NAXIS3"] = np.shape(region_data)[0]
+        header["CRVAL3"] = self.wvl_axis[mask][0]
+        header["NAXIS3"] = region_data.shape[0]
 
         return Cube(data=region_data, header=header)
 
@@ -130,13 +130,16 @@ class Cube:
         
         wvl_min = line.rest_wvl - (width * line.line_width / 2.0)
         wvl_max = line.rest_wvl + (width * line.line_width / 2.0)
+        mask = (self.wvl_axis > wvl_min) & (self.wvl_axis < wvl_max)
 
-        region_data = self.data[(self.wvl_axis > wvl_min) & (self.wvl_axis < wvl_max)]
+        region_data = self.data[mask]
 
         # update header with new wvl range
         header = self.header.copy()
-        header["CRVAL3"] = wvl_min
-        header["NAXIS3"] = np.shape(region_data)[0]
+        header["CRVAL3"] = self.wvl_axis[mask][0]
+        header["NAXIS3"] = region_data.shape[0]
+
+        from .LineCube import LineCube
 
         return LineCube(data=region_data, header=header, line=line, line_list=line_list)
 
@@ -153,7 +156,6 @@ class Cube:
         # create holder arrays for continuum and continuum
         # subtracted cubes
         cont_data = np.zeros(self.data.shape)
-        cont_sub_data = np.zeros(self.data.shape)
 
         # perform the continuum subtraction for each pixel
         nchan, ni, nj = self.shape
@@ -178,8 +180,9 @@ class Cube:
         Args:
             filename (str): Output FITS filename.
         """
-        hdu = fits.PrimaryHDU(data=self.data, header=self.header)
-        hdu.writeto(filename, overwrite=True)
+        primary = fits.PrimaryHDU()
+        sci = fits.PrimaryHDU(data=self.data, header=self.header, name='SCI')
+        fits.HDUList([primary, sci)].writeto(filename, overwrite=True)
 
 
 def combine_cubes(old_cube, new_cube):
