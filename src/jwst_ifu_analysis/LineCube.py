@@ -5,11 +5,12 @@ from astropy.io import fits
 import bettermoments as bm
 
 from .Cube import Cube
+from .LineList import LineList
 from .utils import *
 
 
 class LineCube(Cube):
-    def __init__(self, data, line, line_list, header=None):
+    def __init__(self, data, line, line_list=None, header=None):
         """LineCube class for handling spectral cubes centered on a specific line
 
         Args:
@@ -22,7 +23,10 @@ class LineCube(Cube):
         super().__init__(data, header)
 
         self.line = line
-        self.line_list = line_list
+        if line_list:
+            self.line_list = line_list
+        else:
+            self.line_list = LineList([self.line])
 
         # get a mask for the lines in this cube
         mask = self.line_list.mask(self.wvl_axis, exclude=self.line) 
