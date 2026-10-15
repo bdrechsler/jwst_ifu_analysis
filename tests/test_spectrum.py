@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from astropy.constants import c
 
-from jwst_ifu_analysis import Spectrum
+from linescape import Spectrum
 
 __author__ = "bdrechsler"
 __copyright__ = "bdrechsler"

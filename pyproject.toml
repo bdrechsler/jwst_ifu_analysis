@@ -3,7 +3,7 @@ requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "jwst_ifu_analysis"
+name = "linescape"
 dynamic = ["version"]
 description = "Tools for extracting, fitting, and visualizing JWST IFU spectral data cubes"
 readme = "README.rst"
@@ -60,6 +60,6 @@ exclude = ["tests*"]
 version_scheme = "no-guess-dev"
 
 [tool.pytest.ini_options]
-addopts = "--cov jwst_ifu_analysis --cov-report term-missing --verbose"
+addopts = "--cov linescape --cov-report term-missing --verbose"
 norecursedirs = ["dist", "build", ".tox"]
 testpaths = ["tests"]

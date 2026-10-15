@@ -1,8 +1,8 @@
 =================
-jwst_ifu_analysis
+linescape
 =================
 
-**jwst_ifu_analysis** provides tools for extracting, fitting, and
+**linescape** provides tools for extracting, fitting, and
 visualizing JWST IFU (NIRSpec and MIRI MRS) spectral data cubes: aperture
 spectral extraction, continuum and line fitting, and moment-map generation.
 See :doc:`getting_started` for a walkthrough of the main workflow, or

@@ -7,18 +7,18 @@ Installation
 
 .. code-block:: bash
 
-    pip install jwst_ifu_analysis
+    pip install linescape
 
 Loading a cube
 ==============
 
-A :class:`~jwst_ifu_analysis.Cube.Cube` wraps a JWST pipeline spectral cube
+A :class:`~linescape.Cube.Cube` wraps a JWST pipeline spectral cube
 (a Stage 3 ``*_s3d.fits`` product). Pass it a filename and it reads the
 ``SCI`` extension's data and header:
 
 .. code-block:: python
 
-    from jwst_ifu_analysis import Cube
+    from linescape import Cube
 
     cube = Cube("stage3_s3d.fits")
 
@@ -29,9 +29,9 @@ calculations are always in Jy.
 Extracting a 1D spectrum
 =========================
 
-:meth:`~jwst_ifu_analysis.Cube.Cube.extract_spectrum` sums the flux within an
+:meth:`~linescape.Cube.Cube.extract_spectrum` sums the flux within an
 aperture, at every wavelength channel, to produce a
-:class:`~jwst_ifu_analysis.Spectrum.Spectrum`. The aperture is defined by a
+:class:`~linescape.Spectrum.Spectrum`. The aperture is defined by a
 region — either a path to a DS9/CRTF region file, or a
 :mod:`regions` region object:
 
@@ -61,7 +61,7 @@ fitting the continuum:
 Measuring a line flux
 ======================
 
-:meth:`~jwst_ifu_analysis.Spectrum.Spectrum.line_flux` supports two methods:
+:meth:`~linescape.Spectrum.Spectrum.line_flux` supports two methods:
 fitting a Gaussian and taking its analytic area (``method="fit"``), or
 numerically integrating the flux within the line window
 (``method="integral"``, which only captures the flux within
@@ -76,15 +76,15 @@ fit:
 Moment maps with a LineCube
 =============================
 
-A :class:`~jwst_ifu_analysis.LineCube.LineCube` is a
-:class:`~jwst_ifu_analysis.Cube.Cube` scoped to a single line: it blanks out
+A :class:`~linescape.LineCube.LineCube` is a
+:class:`~linescape.Cube.Cube` scoped to a single line: it blanks out
 channels covered by other nearby lines in ``line_list``, and computes a
 velocity axis relative to ``rest_wvl``. It takes the same ``data``/file
 argument as ``Cube``, plus the line and line list:
 
 .. code-block:: python
 
-    from jwst_ifu_analysis import LineCube
+    from linescape import LineCube
 
     line_cube = LineCube("stage3_s3d.fits", line=line, line_list=line_list)
 
@@ -96,7 +96,7 @@ maps can be computed directly, optionally writing the result to a FITS file:
     mom0 = line_cube.moment0(fname="mom0.fits")
     mom1 = line_cube.moment1(fname="mom1.fits")
 
-For noisier data, :meth:`~jwst_ifu_analysis.LineCube.LineCube.bm_collapse`
+For noisier data, :meth:`~linescape.LineCube.LineCube.bm_collapse`
 delegates to the `bettermoments <https://github.com/richteague/bettermoments>`_
 package instead, which smooths and sigma-clips the cube before collapsing it
 and also returns an uncertainty map:
@@ -107,4 +107,4 @@ and also returns an uncertainty map:
 
 See the :doc:`Module Reference <api/modules>` for the full API, including
 mosaicking overlapping cubes with
-:func:`~jwst_ifu_analysis.Cube.combine_cubes`.
+:func:`~linescape.Cube.combine_cubes`.

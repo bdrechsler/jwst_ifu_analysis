@@ -181,8 +181,8 @@ class Cube:
             filename (str): Output FITS filename.
         """
         primary = fits.PrimaryHDU()
-        sci = fits.PrimaryHDU(data=self.data, header=self.header, name='SCI')
-        fits.HDUList([primary, sci)].writeto(filename, overwrite=True)
+        sci = fits.ImageHDU(data=self.data, header=self.header, name='SCI')
+        fits.HDUList([primary, sci]).writeto(filename, overwrite=True)
 
 
 def combine_cubes(old_cube, new_cube):

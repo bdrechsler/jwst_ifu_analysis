@@ -6,7 +6,7 @@ from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from regions import CircleSkyRegion
 
-from jwst_ifu_analysis import Cube
+from linescape import Cube
 
 __author__ = "bdrechsler"
 __copyright__ = "bdrechsler"

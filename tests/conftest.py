@@ -1,4 +1,4 @@
-"""Shared fixtures for jwst_ifu_analysis tests.
+"""Shared fixtures for linescape tests.
 
 Builds small synthetic IFU-cube headers/data in memory so tests don't need
 real JWST pipeline products.

@@ -27,7 +27,7 @@
 Contributing
 ============
 
-Welcome to ``jwst_ifu_analysis`` contributor's guide.
+Welcome to ``linescape`` contributor's guide.
 
 This document focuses on getting any potential contributor familiarized
 with the development processes, but `other kinds of contributions`_ are also
@@ -46,7 +46,7 @@ guidelines.
 Issue Reports
 =============
 
-If you experience bugs or general issues with ``jwst_ifu_analysis``, please have a look
+If you experience bugs or general issues with ``linescape``, please have a look
 on the `issue tracker`_. If you don't see anything useful there, please feel
 free to fire an issue report.
 
@@ -65,10 +65,10 @@ you help us to identify the root cause of the issue.
 Documentation Improvements
 ==========================
 
-You can help improve ``jwst_ifu_analysis`` docs by making them more readable and coherent, or
+You can help improve ``linescape`` docs by making them more readable and coherent, or
 by adding missing information and correcting mistakes.
 
-``jwst_ifu_analysis`` documentation uses Sphinx_ as its main documentation compiler.
+``linescape`` documentation uses Sphinx_ as its main documentation compiler.
 This means that the docs are kept in the same repository as the project code, and
 that any documentation update is done in the same way was a code contribution.
 
@@ -80,7 +80,7 @@ that any documentation update is done in the same way was a code contribution.
 
    .. tip::
       Please notice that the `GitHub web interface`_ provides a quick way of
-      propose changes in ``jwst_ifu_analysis``'s files. While this mechanism can
+      propose changes in ``linescape``'s files. While this mechanism can
       be tricky for normal code contributions, it works perfectly fine for
       contributing to the docs, and can be quite handy.
 
@@ -131,8 +131,8 @@ This can easily be done via either |virtualenv|_::
 
 or Miniconda_::
 
-    conda create -n jwst_ifu_analysis python=3 six virtualenv pytest pytest-cov
-    conda activate jwst_ifu_analysis
+    conda create -n linescape python=3 six virtualenv pytest pytest-cov
+    conda activate linescape
 
 Clone the repository
 --------------------
@@ -158,7 +158,7 @@ Clone the repository
     pip install pre-commit
     pre-commit install
 
-   ``jwst_ifu_analysis`` comes with a lot of hooks configured to automatically help the
+   ``linescape`` comes with a lot of hooks configured to automatically help the
    developer to check the code being written.
 
 Implement your changes
@@ -285,7 +285,7 @@ Releases
 
 If you are part of the group of maintainers and have correct user permissions
 on PyPI_, the following steps can be used to release a new version for
-``jwst_ifu_analysis``:
+``linescape``:
 
 #. Make sure all unit tests are successful.
 #. Tag the current commit on the main branch with a release tag, e.g., ``v1.2.3``.

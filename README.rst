@@ -1,17 +1,17 @@
-.. image:: https://img.shields.io/pypi/v/jwst_ifu_analysis.svg
+.. image:: https://img.shields.io/pypi/v/linescape.svg
     :alt: PyPI-Server
-    :target: https://pypi.org/project/jwst_ifu_analysis/
+    :target: https://pypi.org/project/linescape/
 
 |
 
 =================
-jwst_ifu_analysis
+linescape
 =================
 
 Tools for extracting, fitting, and visualizing JWST IFU (NIRSpec and MIRI MRS)
 spectral data cubes.
 
-``jwst_ifu_analysis`` provides a small class hierarchy built on top of
+``linescape`` provides a small class hierarchy built on top of
 ``astropy`` and ``photutils`` for common IFU analysis tasks:
 
 - **Cube** — load a spectral data cube from a pipeline FITS file (or a raw
@@ -31,14 +31,14 @@ Installation
 
 .. code-block:: bash
 
-    pip install jwst_ifu_analysis
+    pip install linescape
 
 Usage
 =====
 
 .. code-block:: python
 
-    from jwst_ifu_analysis import Cube
+    from linescape import Cube
 
     cube = Cube("stage3_s3d.fits")
     spectrum = cube.extract_spectrum("aperture.reg")

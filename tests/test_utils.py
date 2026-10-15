@@ -1,6 +1,6 @@
 import numpy as np
 
-from jwst_ifu_analysis.utils import (
+from linescape.utils import (
     get_chan,
     get_line_mask,
     get_wvl_axis,
