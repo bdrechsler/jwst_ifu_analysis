@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "linescape"
-dynamic = "0.0.1"
+version = "0.0.1"
 description = "Tools for extracting, fitting, and visualizing JWST IFU spectral data cubes"
 readme = "README.rst"
 license = { file = "LICENSE.txt" }
