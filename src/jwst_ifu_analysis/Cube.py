@@ -6,6 +6,7 @@ from astropy.wcs import WCS
 from regions import Regions
 
 from .Spectrum import Spectrum
+from .LineCube import LineCube
 from .utils import *
 
 
@@ -113,6 +114,31 @@ class Cube:
         header["NAXIS3"] = np.shape(region_data)[0]
 
         return Cube(data=region_data, header=header)
+
+    def line_region(self, line, width=4., line_list=None):
+        """Get a spectral region (slab) of the spectral cube
+
+        Args:
+            line (Line): line object to center region on
+            width (float): width of the spectral region in units of line width. Defaults to 4. 
+            line_list (LineList): optional line list to attach to the LineCube. Defaults to None.
+
+        Returns:
+            spectral_region (Cube): region of spectral cube within spectral
+            window
+        """
+        
+        wvl_min = line.rest_wvl - (width * line.line_width / 2.0)
+        wvl_max = line.rest_wvl + (width * line.line_width / 2.0)
+
+        region_data = self.data[(self.wvl_axis > wvl_min) & (self.wvl_axis < wvl_max)]
+
+        # update header with new wvl range
+        header = self.header.copy()
+        header["CRVAL3"] = wvl_min
+        header["NAXIS3"] = np.shape(region_data)[0]
+
+        return LineCube(data=region_data, header=header, line=line, line_list=line_list)
 
     def cont_fit(self, line_list):
         """Continuum fit the spectral cube
