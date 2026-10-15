@@ -1,5 +1,6 @@
 import numpy as np
 from astropy.table import Table
+from pathlib import Path
 
 from .Line import Line
 
@@ -209,7 +210,8 @@ class LineList:
                     "line_width": float(row["line_width"])}
             for f in _OPTIONAL_FIELDS:
                 if f in table.colnames:
-                    info[f] = str(row[f])
+                    # masked entries (e.g., empty strings read from FITS) become ""
+                    info[f] = "" if row[f] is np.ma.masked else str(row[f])
             lines.append(Line(**info))
         return cls(lines)
 
@@ -229,6 +231,52 @@ class LineList:
         )
 
     @classmethod
+    def read(cls, path, hdu=1):
+        """Read a LineList from a FITS, CSV, or plain text file, chosen by file extension
+
+        Args:
+            path (str or Path): file to read (.fits, .fit, .fts, .csv, .txt, or .dat)
+            hdu (int): HDU holding the table, only used for FITS files
+
+        Raises:
+            ValueError: if the file extension is not a supported type
+        """
+        suffix = Path(path).suffix.lower()
+        if suffix in (".fits", ".fit", ".fts"):
+            return cls.from_fits(path, hdu)
+        if suffix == ".csv":
+            return cls.from_csv(path)
+        if suffix in (".txt", ".dat"):
+            return cls.from_txt(path)
+        raise ValueError(
+            f"Unsupported file type '{suffix}' for {path}. "
+            "Supported: .fits, .fit, .fts, .csv, .txt, .dat"
+        )
+
+    def write(self, path, overwrite=False):
+        """Write a LineList to a FITS, CSV, or plain text file, chosen by file extension
+
+        Args:
+            path (str or Path): file to write (.fits, .fit, .fts, .csv, .txt, or .dat)
+            overwrite (bool): if True, will overwrite an existing file
+
+        Raises:
+            ValueError: if the file extension is not a supported type
+        """
+        suffix = Path(path).suffix.lower()
+        if suffix in (".fits", ".fit", ".fts"):
+            self.to_fits(path, overwrite=overwrite)
+        elif suffix == ".csv":
+            self.to_csv(path, overwrite=overwrite)
+        elif suffix in (".txt", ".dat"):
+            self.to_txt(path, overwrite=overwrite)
+        else:
+            raise ValueError(
+                f"Unsupported file type '{suffix}' for {path}. "
+                "Supported: .fits, .fit, .fts, .csv, .txt, .dat"
+            )
+
+    @classmethod
     def from_fits(cls, path, hdu=1):
         """Read a LineList from a FITS table (see from_table for the columns)"""
         return cls.from_table(Table.read(path, hdu=hdu))
@@ -236,6 +284,27 @@ class LineList:
     def to_fits(self, path, overwrite=False):
         """Write the LineList to a FITS table"""
         self.to_table().write(path, format="fits", overwrite=overwrite)
+
+    @classmethod
+    def from_csv(cls, path):
+        """Read a LineList from a CSV file with a header row (see from_table for the columns)"""
+        # fill_values=[] keeps empty optional fields as "" instead of masking them
+        return cls.from_table(Table.read(path, format="ascii.csv", fill_values=[]))
+
+    @classmethod
+    def from_txt(cls, path):
+        """Read a LineList from a whitespace-delimited text file with a header row
+        (see from_table for the columns)"""
+        # fill_values=[] keeps empty optional fields as "" instead of masking them
+        return cls.from_table(Table.read(path, format="ascii", fill_values=[]))
+
+    def to_csv(self, path, overwrite=False):
+        """Write the LineList to a CSV file with a header row"""
+        self.to_table().write(path, format="ascii.csv", overwrite=overwrite)
+
+    def to_txt(self, path, overwrite=False):
+        """Write the LineList to a whitespace-delimited text file with a header row"""
+        self.to_table().write(path, format="ascii", overwrite=overwrite)
 
     @classmethod
     def coerce(cls, obj):
