@@ -39,6 +39,44 @@ class Cube:
             self.data *= 1.0e6 * pix_area
             self.header["BUNIT"] = "Jy"
 
+    def __add__(self, other):
+        if isinstance(other, (Cube, np.ndarray)):
+            if isinstance(other, Cube):
+                data = other.data
+            else:
+                data = other
+            if data.shape == self.data.shape:
+                new_data = self.data + data
+                if hasattr(self, "line"):
+                   from .LineCube import LineCube
+                   return LineCube(data=new_data, header=self.header,
+                                   line=self.line, line_list=self.line_list)
+                else:
+                    return Cube(data=new_data, header=self.header)
+            else:
+                raise ValueError("Objects must be the same shape")
+        else:
+            raise TypeError("Added object must be a Cube or np.ndarray")
+
+    def __sub__(self, other):
+        if isinstance(other, (Cube, np.ndarray)):
+            if isinstance(other, Cube):
+                data = other.data
+            else:
+                data = other
+            if data.shape == self.data.shape:
+                new_data = self.data - data
+                if hasattr(self, "line"):
+                   from .LineCube import LineCube
+                   return LineCube(data=new_data, header=self.header,
+                                   line=self.line, line_list=self.line_list)
+                else:
+                    return Cube(data=new_data, header=self.header)
+            else:
+                raise ValueError("Objects must be the same shape")
+        else:
+            raise TypeError("Added object must be a Cube or np.ndarray")
+
     def extract_spectrum(self, region):
         """Extract a 1D spectrum from an IFU cube
 
