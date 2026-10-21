@@ -57,9 +57,6 @@ class Spectrum:
         wvl_axis_masked = self.wvl_axis[cont_mask]
         flux_masked = self.flux[cont_mask]
 
-        flux_masked = flux_masked[~np.isnan(flux_masked)]
-        wvl_axis_masked = wvl_axis_masked[~np.isnan(flux_masked)]
-
         # median smooth then fit a polynomial to the continuum spectrum
         cont_flux_smooth = median_filter(
             flux_masked.astype(np.float64), size=med_kernel
