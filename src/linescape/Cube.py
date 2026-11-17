@@ -4,6 +4,7 @@ from astropy.constants import c
 from astropy.io import fits
 from astropy.wcs import WCS
 from regions import Regions
+import astropy.units as u 
 
 from .Spectrum import Spectrum
 from .utils import *
@@ -12,12 +13,13 @@ from .utils import *
 class Cube:
     """A class representing a spectral data cube with methods for extraction, manipulation, and I/O."""
 
-    def __init__(self, data, header=None):
+    def __init__(self, data, header=None, units='Jy'):
         """Initialize a Cube object.
 
         Args:
             data (str or np.ndarray): FITS filename or data array.
             header (astropy.io.fits.Header, optional): FITS header. Required if data is an array.
+            units (str): Units to convert flux to. Default: 'Jy' 
         """
 
         # if data is a file, load in the data and header
@@ -33,11 +35,23 @@ class Cube:
         self.wcs = WCS(self.header)
         self.shape = np.shape(self.data)
 
-        # Convert data to Jy if necessary
-        if self.header["BUNIT"] == "MJy/sr":
-            pix_area = self.header["PIXAR_SR"]
-            self.data *= 1.0e6 * pix_area
-            self.header["BUNIT"] = "Jy"
+        flux_units = u.Unit(self.header["BUNIT"])
+        self.data *= flux_units
+        target_units = u.Unit(units)
+
+        pix_area = self.header["PIXAR_SR"] * u.sr
+
+        if flux_units.is_equivalent(target_units):
+            self.data = self.data.to(target_units)
+
+        elif flux_units.is_equivalent(u.Jy/u.sr) and target_units.is_equivalent(u.Jy):
+            self.data = (self.data * pix_area).to(target_units)
+
+        elif flux_units.is_equivalent(u.Jy) and target_units.is_equivalent(u.Jy/u.sr):
+            self.data = (self.data / pix_area).to(target_units)
+
+        self.header["BUNIT"] = units
+
 
     def __add__(self, other):
         if isinstance(other, (Cube, np.ndarray)):
@@ -243,7 +257,7 @@ def combine_cubes(old_cube, new_cube):
     y_max, x_max = np.unravel_index(np.argmax(corr), corr.shape)
     # calculate the offset
     y_offset = (img1.shape[0] - 1) - y_max
-    x_offset = (img1.shape[1]) - x_max
+    x_offset = (img1.shape[1] - 1) - x_max
 
     # align two images and use entire FOV
     # get dimensions of original image
@@ -260,19 +274,19 @@ def combine_cubes(old_cube, new_cube):
         new_x_bounds = (np.abs(x_offset), nx_big)
         new_y_bounds = (np.abs(y_offset), ny_big)
         x_shift, y_shift = -x_offset, -y_offset
-    elif x_offset < 0 and y_offset > 0:
+    elif x_offset < 0 and y_offset >= 0:
         old_x_bounds = (0, nx)
         old_y_bounds = (np.abs(y_offset), ny_big)
         new_x_bounds = (np.abs(x_offset), nx_big)
         new_y_bounds = (0, ny)
         x_shift, y_shift = -x_offset, 0
-    elif x_offset > 0 and y_offset < 0:
+    elif x_offset >= 0 and y_offset < 0:
         old_x_bounds = (np.abs(x_offset), nx_big)
         old_y_bounds = (0, ny)
         new_x_bounds = (0, nx)
         new_y_bounds = (np.abs(y_offset), ny_big)
         x_shift, y_shift = 0, -y_offset
-    elif x_offset > 0 and y_offset > 0:
+    elif x_offset >= 0 and y_offset >= 0:
         old_x_bounds = (np.abs(x_offset), nx_big)
         old_y_bounds = (np.abs(y_offset), ny_big)
         new_x_bounds = (0, nx)
@@ -316,8 +330,10 @@ def combine_cubes(old_cube, new_cube):
     ref_1 = new_header["CRPIX1"]
     ref_2 = new_header["CRPIX2"]
     # set new dimensions
-    combined_header["NAXIS1"] = ny_big
-    combined_header["NAXIS2"] = nx_big
+    # combined_header["NAXIS1"] = ny_big
+    # combined_header["NAXIS2"] = nx_big
+    combined_header["NAXIS1"] = nx_big
+    combined_header["NAXIS2"] = ny_big
     # set new reference pixel position
     combined_header["CRPIX1"] = ref_1 + x_shift
     combined_header["CRPIX2"] = ref_2 + y_shift
